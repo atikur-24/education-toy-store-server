@@ -11,7 +11,6 @@ app.use(express.json());
 
 
 
-
 const uri = "mongodb+srv://toy:22T4u2HBUeKmsRL7@cluster0.28gkq0d.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -27,14 +26,24 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
     const database = client.db('toysDB');
     const toyCollection = database.collection('toys');
 
+    // load all toy and specific user toys
+    app.get('/toys', async(req, res) => {
+      let query = {};
+      if(req.query?.email) {
+        query = {email: req.query?.email}
+      }
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post('/toys', async(req, res) => {
-        const orders = req.body;
-        console.log(orders);
-        // const result = await ordersCollection.insertOne(orders);
-        // res.send(result)
+        const newToys = req.body;
+        const result = await toyCollection.insertOne(newToys);
+        res.send(result)
       });
 
     // Send a ping to confirm a successful connection
@@ -50,11 +59,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Toy Server is running...');
+    res.send('Education Toy Server is running...');
 });
 
 app.listen(port, () => {
     console.log(`'Toy server is running on port ${5000}`);
 })
-// 22T4u2HBUeKmsRL7
-// toy

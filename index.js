@@ -30,6 +30,25 @@ async function run() {
     const database = client.db('toysDB');
     const toyCollection = database.collection('toys');
 
+    // Creating index on fields
+    const indexKeys = { name: 1, category: 1 };
+    const indexOptions = { name: "nameCategory" }; 
+    const result = await toyCollection.createIndex(indexKeys, indexOptions);
+    console.log(result);
+    app.get("/getbyTitle/:text", async (req, res) => {
+      const name = req.params.text;
+      const result = await toyCollection
+        .find({
+          $or: [
+            { title: { $regex: name, $options: "i" } },
+            { category: { $regex: name, $options: "i" } },
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+    
+
     // load all toy and specific user toys
     app.get('/toys', async(req, res) => {
       let query = {};

@@ -40,8 +40,8 @@ async function run() {
       res.send(result);
     });
 
-    // data load on category wise
-    app.get('/toys/:category', async(req, res) => {
+    // load data by category
+    app.get('/toys/cat/:category', async(req, res) => {
       if(req.params.category == "Math" || req.params.category == "Engineering" || req.params.category == "Medical") {
         const result = await toyCollection.find({ category: req.params.category}).toArray()
         return res.send(result)

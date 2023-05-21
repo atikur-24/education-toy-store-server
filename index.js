@@ -11,7 +11,7 @@ app.use(express.json());
 
 
 
-const uri = "mongodb+srv://toy:22T4u2HBUeKmsRL7@cluster0.28gkq0d.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.SECRET_KEY}@cluster0.28gkq0d.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     const database = client.db('toysDB');
     const toyCollection = database.collection('toys');
@@ -40,12 +40,20 @@ async function run() {
       res.send(result);
     });
 
+    // data load on category wise
+    app.get('/toys/:category', async(req, res) => {
+      if(req.params.category == "Math" || req.params.category == "Engineering" || req.params.category == "Medical") {
+        const result = await toyCollection.find({ category: req.params.category}).toArray()
+        return res.send(result)
+      }
+    });
+
     app.get('/toys/:id', async(req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await toyCollection.findOne(query);
       res.send(result);
-    })
+    });
 
     // inserting toy
     app.post('/toys', async(req, res) => {

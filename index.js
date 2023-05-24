@@ -40,7 +40,7 @@ async function run() {
       const result = await toyCollection
         .find({
           $or: [
-            { title: { $regex: name, $options: "i" } },
+            { name: { $regex: name, $options: "i" } },
             { category: { $regex: name, $options: "i" } },
           ],
         })
